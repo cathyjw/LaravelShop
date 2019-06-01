@@ -9,13 +9,13 @@ use Illuminate\Support\Str;
 
 class CouponCode extends Model
 {
-    // 用常量的方式定义支持的优惠券类型
+    // Coupon type
     const TYPE_FIXED = 'fixed';
     const TYPE_PERCENT = 'percent';
 
     public static $typeMap = [
-        self::TYPE_FIXED   => '固定金额',
-        self::TYPE_PERCENT => '比例',
+        self::TYPE_FIXED   => 'Fixed amount discount',
+        self::TYPE_PERCENT => 'Percent discount',
     ];
 
     protected $fillable = [
@@ -33,7 +33,7 @@ class CouponCode extends Model
     protected $casts = [
         'enabled' => 'boolean',
     ];
-    // 指明这两个字段是日期类型
+    // data type
     protected $dates = ['not_before', 'not_after'];
 
     protected $appends = ['description'];
@@ -43,35 +43,35 @@ class CouponCode extends Model
         $str = '';
 
         if ($this->min_amount > 0) {
-            $str = '满'.str_replace('.00', '', $this->min_amount);
+            $str = 'over'.str_replace('.00', '', $this->min_amount);
         }
         if ($this->type === self::TYPE_PERCENT) {
-            return $str.'优惠'.str_replace('.00', '', $this->value).'%';
+            return $str.'On Sale'.str_replace('.00', '', $this->value).'%';
         }
 
-        return $str.'减'.str_replace('.00', '', $this->value);
+        return $str.'cash discount'.str_replace('.00', '', $this->value);
     }
 
     public function checkAvailable(User $user, $orderAmount = null)
     {
         if (!$this->enabled) {
-            throw new CouponCodeUnavailableException('优惠券不存在');
+            throw new CouponCodeUnavailableException('Coupons don\'t exist');
         }
 
         if ($this->total - $this->used <= 0) {
-            throw new CouponCodeUnavailableException('该优惠券已被兑完');
+            throw new CouponCodeUnavailableException('The coupon has been redeemed');
         }
 
         if ($this->not_before && $this->not_before->gt(Carbon::now())) {
-            throw new CouponCodeUnavailableException('该优惠券现在还不能使用');
+            throw new CouponCodeUnavailableException('The coupon is not available yet');
         }
 
         if ($this->not_after && $this->not_after->lt(Carbon::now())) {
-            throw new CouponCodeUnavailableException('该优惠券已过期');
+            throw new CouponCodeUnavailableException('The coupon has expired');
         }
 
         if (!is_null($orderAmount) && $orderAmount < $this->min_amount) {
-            throw new CouponCodeUnavailableException('订单金额不满足该优惠券最低金额');
+            throw new CouponCodeUnavailableException('The order amount does not meet the minimum amount of the coupon');
         }
 
         $used = Order::where('user_id', $user->id)
@@ -87,15 +87,15 @@ class CouponCode extends Model
             })
             ->exists();
         if ($used) {
-            throw new CouponCodeUnavailableException('你已经使用过这张优惠券了');
+            throw new CouponCodeUnavailableException('You\'ve already used this coupon');
         }
     }
 
     public function getAdjustedPrice($orderAmount)
     {
-        // 固定金额
+        // fixed amount
         if ($this->type === self::TYPE_FIXED) {
-            // 为了保证系统健壮性，我们需要订单金额最少为 0.01 元
+            // the minimum total price of the order is 0.01
             return max(0.01, $orderAmount - $this->value);
         }
 

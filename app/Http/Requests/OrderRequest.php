@@ -21,13 +21,13 @@ class OrderRequest extends Request
                 'required',
                 function ($attribute, $value, $fail) {
                     if (!$sku = ProductSku::find($value)) {
-                        return $fail('该商品不存在');
+                        return $fail('This product does not exist');
                     }
                     if (!$sku->product->on_sale) {
-                        return $fail('该商品未上架');
+                        return $fail('The product is not in selling');
                     }
                     if ($sku->stock === 0) {
-                        return $fail('该商品已售完');
+                        return $fail('This product is sold out');
                     }
                     // 获取当前索引
                     preg_match('/items\.(\d+)\.sku_id/', $attribute, $m);
@@ -35,7 +35,7 @@ class OrderRequest extends Request
                     // 根据索引找到用户所提交的购买数量
                     $amount = $this->input('items')[$index]['amount'];
                     if ($amount > 0 && $amount > $sku->stock) {
-                        return $fail('该商品库存不足');
+                        return $fail('Out of Stock');
                     }
                 },
             ],

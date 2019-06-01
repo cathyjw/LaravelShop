@@ -13,16 +13,16 @@ class AddCartRequest extends Request
                 'required',
                 function ($attribute, $value, $fail) {
                     if (!$sku = ProductSku::find($value)) {
-                        return $fail('该商品不存在');
+                        return $fail('This product does not exist');
                     }
                     if (!$sku->product->on_sale) {
-                        return $fail('该商品未上架');
+                        return $fail('The product is not in selling');
                     }
                     if ($sku->stock === 0) {
-                        return $fail('该商品已售完');
+                        return $fail('This product is sold out');
                     }
                     if ($this->input('amount') > 0 && $sku->stock < $this->input('amount')) {
-                        return $fail('该商品库存不足');
+                        return $fail('Out of Stock');
                     }
                 },
             ],
@@ -33,14 +33,14 @@ class AddCartRequest extends Request
     public function attributes()
     {
         return [
-            'amount' => '商品数量'
+            'amount' => 'Quantity of Product'
         ];
     }
 
     public function messages()
     {
         return [
-            'sku_id.required' => '请选择商品'
+            'sku_id.required' => 'You need specify order items'
         ];
     }
 }

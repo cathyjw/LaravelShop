@@ -10,7 +10,7 @@ class HandleRefundRequest extends Request
     {
         return [
             'agree'  => ['required', 'boolean'],
-            'reason' => ['required_if:agree,false'], // 拒绝退款时需要输入拒绝理由
+            'reason' => ['required_if:agree,false'], // To refuse a refund, you need to enter the reason for refusal
         ];
     }
 }

@@ -23,7 +23,7 @@ class ProductsController extends Controller
     public function index(Content $content)
     {
         return $content
-            ->header('商品列表')
+            ->header('Product List')
             ->body($this->grid());
     }
 
@@ -37,7 +37,7 @@ class ProductsController extends Controller
     public function edit($id, Content $content)
     {
         return $content
-            ->header('编辑商品')
+            ->header('Edit Product')
             ->body($this->form()->edit($id));
     }
 
@@ -50,7 +50,7 @@ class ProductsController extends Controller
     public function create(Content $content)
     {
         return $content
-            ->header('创建商品')
+            ->header('Create Product')
             ->body($this->form());
     }
 
@@ -64,21 +64,21 @@ class ProductsController extends Controller
         $grid = new Grid(new Product);
 
         $grid->id('ID')->sortable();
-        $grid->title('商品名称');
-        $grid->on_sale('已上架')->display(function ($value) {
-            return $value ? '是' : '否';
+        $grid->title('Product Name');
+        $grid->on_sale('Sell')->display(function ($value) {
+            return $value ? 'Y' : 'N';
         });
-        $grid->price('价格');
-        $grid->rating('评分');
-        $grid->sold_count('销量');
-        $grid->review_count('评论数');
+        $grid->price('Price');
+        $grid->rating('Rate');
+        $grid->sold_count('Sales Volume');
+        $grid->review_count('Number of Comments ');
 
         $grid->actions(function ($actions) {
             $actions->disableView();
             $actions->disableDelete();
         });
         $grid->tools(function ($tools) {
-            // 禁用批量删除按钮
+            // disable batch remove
             $tools->batch(function ($batch) {
                 $batch->disableDelete();
             });
@@ -96,27 +96,27 @@ class ProductsController extends Controller
     {
         $form = new Form(new Product);
 
-        // 创建一个输入框，第一个参数 title 是模型的字段名，第二个参数是该字段描述
-        $form->text('title', '商品名称')->rules('required');
+        // Create text
+        $form->text('title', 'Product Name')->rules('required');
 
-        // 创建一个选择图片的框
-        $form->image('image', '封面图片')->rules('required|image');
+        //Create image
+        $form->image('image', 'Image')->rules('required|image');
 
-        // 创建一个富文本编辑器
-        $form->editor('description', '商品描述')->rules('required');
+        // Create editor
+        $form->editor('description', 'Product Description')->rules('required');
 
-        // 创建一组单选框
-        $form->radio('on_sale', '上架')->options(['1' => '是', '0'=> '否'])->default('0');
+        // Create
+        $form->radio('on_sale', 'Sell')->options(['1' => 'Y', '0'=> 'N'])->default('0');
 
-        // 直接添加一对多的关联模型
-        $form->hasMany('skus', 'SKU 列表', function (Form\NestedForm $form) {
-            $form->text('title', 'SKU 名称')->rules('required');
-            $form->text('description', 'SKU 描述')->rules('required');
-            $form->text('price', '单价')->rules('required|numeric|min:0.01');
-            $form->text('stock', '剩余库存')->rules('required|integer|min:0');
+        // 
+        $form->hasMany('skus', 'SKU List', function (Form\NestedForm $form) {
+            $form->text('title', 'SKU Name')->rules('required');
+            $form->text('description', 'SKU Description')->rules('required');
+            $form->text('price', 'Price')->rules('required|numeric|min:0.01');
+            $form->text('stock', 'Stock')->rules('required|integer|min:0');
         });
 
-        // 定义事件回调，当模型即将保存时会触发这个回调
+        // Save
         $form->saving(function (Form $form) {
             $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
         });

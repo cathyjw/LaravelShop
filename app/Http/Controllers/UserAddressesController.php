@@ -62,7 +62,7 @@ class UserAddressesController extends Controller
         $this->authorize('own', $user_address);
         $user_address->delete();
 
-        // 把之前的 redirect 改成返回空数组
+        //  redirect change to return empty array
         return [];
     }
 }

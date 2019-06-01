@@ -11,7 +11,7 @@ class CartController extends Controller
 {
     protected $cartService;
 
-    // 利用 Laravel 的自动解析功能注入 CartService 类
+    
     public function __construct(CartService $cartService)
     {
         $this->cartService = $cartService;

@@ -11,7 +11,7 @@ class CouponCodesController extends Controller
     public function show($code, Request $request)
     {
         if (!$record = CouponCode::where('code', $code)->first()) {
-            throw new CouponCodeUnavailableException('优惠券不存在');
+            throw new CouponCodeUnavailableException('Coupon does not exist');
         }
 
         $record->checkAvailable($request->user());

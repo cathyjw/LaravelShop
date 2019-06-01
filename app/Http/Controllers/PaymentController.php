@@ -14,18 +14,18 @@ class PaymentController extends Controller
     public function payByAlipay(Order $order, Request $request)
     {
         try{
-            // 判断订单是否属于当前用户
+            // if operate by onwer
             $this->authorize('own', $order);
-            // 订单已支付或者已关闭
+            // Order paid or closed
             if ($order->paid_at || $order->closed) {
-                throw new InvalidRequestException('订单状态不正确');
+                throw new InvalidRequestException('The order status is incorrect');
             }
 
-            // 调用支付宝的网页支付
+            // Alipay
             return app('alipay')->web([
-                'out_trade_no' => $order->no, // 订单编号，需保证在商户端不重复
-                'total_amount' => $order->total_amount, // 订单金额，单位元，支持小数点后两位
-                'subject'      => '支付 Laravel Shop 的订单：'.$order->no, // 订单标题
+                'out_trade_no' => $order->no, // 
+                'total_amount' => $order->total_amount, // .00
+                'subject'      => 'Pay Laravel Shop Order ：'.$order->no, // 
             ]);
         }
         catch(exception $e){
@@ -40,10 +40,10 @@ class PaymentController extends Controller
         try {
             app('alipay')->verify();
         } catch (\Exception $e) {
-            return view('pages.error', ['msg' => '数据不正确']);
+            return view('pages.error', ['msg' => 'Invalid Information']);
         }
 
-        return view('pages.success', ['msg' => '付款成功']);
+        return view('pages.success', ['msg' => 'payment approval']);
     }
 
     public function alipayNotify()

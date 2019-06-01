@@ -20,13 +20,13 @@ class UserAddressRequest extends Request
     public function attributes()
     {
         return [
-            'province'      => '省',
-            'city'          => '城市',
-            'district'      => '地区',
-            'address'       => '详细地址',
-            'zip'           => '邮编',
-            'contact_name'  => '姓名',
-            'contact_phone' => '电话',
+            'province'      => 'Province',
+            'city'          => 'City',
+            'district'      => 'District',
+            'address'       => 'Address',
+            'zip'           => 'Postal Code',
+            'contact_name'  => 'Name',
+            'contact_phone' => 'Phone Number',
         ];
     }
 }
